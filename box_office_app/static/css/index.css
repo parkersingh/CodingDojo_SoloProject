@@ -1,0 +1,64 @@
+* {
+    margin: 0px;
+    padding: 0px;
+  }
+  
+  #header h1 {
+    margin-left: 40px;
+    margin-bottom: 40px;
+  }
+  
+  #login-reg {
+    display: flex;
+    justify-content: space-around;
+  }
+  #register,
+  #login {
+    border: 1px solid black;
+    padding: 10px;
+  }
+  
+  #login {
+    height: 30%;
+  }
+  
+  #register h1,
+  #login h1 {
+    margin-bottom: 10px;
+  }
+  
+  #register button,
+  #login button {
+    margin-left: 80%;
+  }
+  
+  #register h1 {
+    margin-left: 20%;
+  }
+  
+  #login h1 {
+    margin-left: 33%;
+  }
+  
+  .form-control {
+    margin-bottom: 5px;
+  }
+  
+  .form-control input {
+    margin-left: 10px;
+  }
+  
+  .messages {
+    display: inline-block;
+    list-style: none;
+    margin-left: 10%;
+  }
+  
+  .messages li{
+      color: red;
+  }
+  
+  #validator {
+    display: flex;
+  }
+  
