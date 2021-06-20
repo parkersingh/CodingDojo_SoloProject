@@ -11,11 +11,11 @@ class UserManager(models.Manager):
     # validator validates all registration data for new user
     def validator(self, postData):
         errors = {}
-        if len(postData['first_name']) < 2:
-            errors['first_name'] = "First name should be at least 2 characters"
+        if len(postData['name']) < 2:
+            errors['name'] = "Name should be at least 2 characters"
         
-        if len(postData['last_name']) < 2:
-            errors['last_name'] = "Last name should be at least 2 characters"
+        if len(User.objects.filter(username = postData['username'])) == 1:
+            errors['username'] = "Username is already taken. Please choose a different username"
 
         if not EMAIL_REGEX.match(postData['email']):
             errors['email'] = "Invalid email address"
@@ -33,8 +33,8 @@ class UserManager(models.Manager):
         pw = bcrypt.hashpw(postData['password'].encode(), bcrypt.gensalt()).decode()
 
         return User.objects.create(
-            first_name = postData['first_name'],
-            last_name = postData['last_name'],
+            name = postData['name'],
+            username = postData['username'],
             email = postData['email'],
             password = pw
         )
@@ -51,11 +51,43 @@ class UserManager(models.Manager):
         return False
 
 class User(models.Model):
-    first_name = models.CharField(max_length= 255)
-    last_name = models.CharField(max_length= 255)
+    name = models.CharField(max_length= 255)
+    username = models.CharField(max_length= 255)
     email = models.EmailField(unique= True)
     password = models.CharField(max_length= 255)
     created_at = models.DateTimeField(auto_now_add= True)
     updated_at = models.DateTimeField(auto_now= True)
     objects = UserManager()
+
+class Movie(models.Model):
+    title = models.CharField(max_length= 255)
+    genre = models.CharField(max_length= 255)
+    director = models.CharField(max_length= 255)
+    description = models.TextField()
+    avg_rating = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add= True)
+    updated_at = models.DateTimeField(auto_now= True)
+
+class Rating(models.Model):
+    score = models.IntegerField()
+    user = models.ForeignKey(User, related_name='user_ratings', on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, related_name='ratings', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add= True)
+    updated_at = models.DateTimeField(auto_now= True)
+
+class Review(models.Model):
+    review_content = models.TextField()
+    user = models.ForeignKey(User, related_name='user_reviews', on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, related_name='reviews', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add= True)
+    updated_at = models.DateTimeField(auto_now= True)
+
+class Comment(models.Model):
+    comment_content = models.TextField()
+    review = models.ForeignKey(Review, related_name='comments', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='user_comments',on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add= True)
+    updated_at = models.DateTimeField(auto_now= True)
+
+
 
