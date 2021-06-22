@@ -50,6 +50,35 @@ class UserManager(models.Manager):
                 return False
         return False
 
+class MovieManager(models.Manager):
+    def validate(self, postData):
+        errors = {}
+        if len(postData['title']) < 1:
+            errors['title'] = "Title of movie is required"
+        
+        if len(postData['genre']) < 1:
+            errors['genre'] = "Genre of movie is required"
+        
+        if len(postData['director']) < 1: 
+            errors['director'] = "Director of movie is required"
+
+        if len(postData['description']) < 1:
+            errors['description'] = "Description of movie is required"
+        
+        return errors
+    
+    def add(self, postData):
+        return Movie.objects.create(
+            title = postData['title'],
+            genre = postData['genre'],
+            director = postData['director'],
+            description = postData['description'],
+            avg_rating = 0,
+            poster = postData['poster'],
+            added_by = User.objects.get(id= postData['user_id'])
+        )
+
+
 class User(models.Model):
     name = models.CharField(max_length= 255)
     username = models.CharField(max_length= 255)
@@ -65,8 +94,11 @@ class Movie(models.Model):
     director = models.CharField(max_length= 255)
     description = models.TextField()
     avg_rating = models.IntegerField()
+    poster = models.ImageField(upload_to='images/')
+    added_by = models.ForeignKey(User, related_name= "added_movies", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add= True)
     updated_at = models.DateTimeField(auto_now= True)
+    objects = MovieManager()
 
 class Rating(models.Model):
     score = models.IntegerField()
