@@ -14,7 +14,7 @@ class UserManager(models.Manager):
         if len(postData['name']) < 2:
             errors['name'] = "Name should be at least 2 characters"
         
-        if len(User.objects.filter(username = postData['username'])) == 1:
+        if User.objects.filter(username = postData['username']):
             errors['username'] = "Username is already taken. Please choose a different username"
 
         if not EMAIL_REGEX.match(postData['email']):
@@ -67,15 +67,32 @@ class MovieManager(models.Manager):
         
         return errors
     
-    def add(self, postData):
+    def add(self, postData, postImage):
         return Movie.objects.create(
             title = postData['title'],
             genre = postData['genre'],
             director = postData['director'],
             description = postData['description'],
+            release_date = postData['release_date'],
             avg_rating = 0,
-            poster = postData['poster'],
+            poster = postImage,
             added_by = User.objects.get(id= postData['user_id'])
+        )
+
+class ReviewManager(models.Manager):
+    def add(self, postData):
+        return Review.objects.create(
+            review_content = postData['review_content'],
+            user = User.objects.get(id= postData['user_id']),
+            movie = Movie.objects.get(id= postData['movie_id'])
+        )
+
+class CommentManager(models.Manager):
+    def add(self, postData):
+        return Comment.objects.create(
+            comment_content = postData['comment_content'],
+            review = Review.objects.get(id= postData['review_id']),
+            user = User.objects.get(id= postData['user_id'])
         )
 
 
@@ -93,6 +110,7 @@ class Movie(models.Model):
     genre = models.CharField(max_length= 255)
     director = models.CharField(max_length= 255)
     description = models.TextField()
+    release_date = models.DateField()
     avg_rating = models.IntegerField()
     poster = models.ImageField(upload_to='images/')
     added_by = models.ForeignKey(User, related_name= "added_movies", on_delete=models.CASCADE)
@@ -100,19 +118,13 @@ class Movie(models.Model):
     updated_at = models.DateTimeField(auto_now= True)
     objects = MovieManager()
 
-class Rating(models.Model):
-    score = models.IntegerField()
-    user = models.ForeignKey(User, related_name='user_ratings', on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, related_name='ratings', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add= True)
-    updated_at = models.DateTimeField(auto_now= True)
-
 class Review(models.Model):
     review_content = models.TextField()
     user = models.ForeignKey(User, related_name='user_reviews', on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, related_name='reviews', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add= True)
     updated_at = models.DateTimeField(auto_now= True)
+    objects = ReviewManager()
 
 class Comment(models.Model):
     comment_content = models.TextField()

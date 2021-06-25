@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Box Office - {{movie.title}}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ movie.title }}</h1>
+        <div id="left-col">
+            <img src="{{ movie.poster.url }}" alt="{{ movie.title }} poster">
+            <div id="movie-info">
+                <ul>
+                    <li>Release Date: {{ movie.release_date }} </li>
+                    <li>Genre: {{ movie.genre }}</li>
+                    <li>Direcotr: {{ movie.director }}</li>
+                </ul>
+            </div>
+        </div>
+        <div id="middle-col">
+            <div id="description">
+            <h3>Description</h3>
+            <p>{{ movie.description }}</p>
+            </div>
+            <div id="movie-reviews">
+                <h3>Reviews</h3>
+                {% if reviews %}
+                {% for review in reviews %}
+                <div class="review">
+                <p>{{ review.review_content }}</p>
+                {% if review.comments %}
+                {% for comment in review.comments %}
+                    <p class="comment">{{ comment.comment_content }}</p>
+                {% endfor %}
+                {% endif %}
+                <form action="/comment/add" method="POST">
+                    {% csrf_token %}
+                    <textarea name="comment_content" cols="30" rows="5"></textarea>
+                    <input type="hidden" name="review_id" value="{{ review.id }}">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="movie_id" value="{{ movie.id }}">
+                    <input type="submit" value="Comment" class="submit">
+                </form>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="right-col">
+            <div id="user-review">
+                <h3>Your Review</h3>
+                {% if user.review %}
+                <p>{{ user.review }}</p>
+                {% else %}
+                <form action="/review/add" method="POST">
+                    {% csrf_token %}
+                    <textarea name="review_content" cols="25" rows="5"></textarea>
+                    <input type="hidden" name="movie_id" value="{{ movie.id }}">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <input type="submit" value="Post Review">
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
