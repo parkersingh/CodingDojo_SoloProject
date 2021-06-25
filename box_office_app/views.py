@@ -1,3 +1,4 @@
+from typing import ContextManager
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
 
@@ -45,21 +46,19 @@ def login(request):
 
 # logout logs user out of app and returns to register/login page
 
-
 def logout(request):
-    #request.session.flush()
-    #return redirect('/')
-    return HttpResponse(Movie.objects.first().id)
+    request.session.flush()
+    return redirect('/')
 
 
 def dashboard(request):
     if 'user_id' not in request.session:
         return redirect('/')
 
-    user = User.objects.get(id=request.session['user_id'])
-
     context = {
-        "user": user,
+        "user": User.objects.get(id=request.session['user_id']),
+        "movies": Movie.objects.all(),
+        "reviews": Review.objects.all(),
     }
     return render(request, "dashboard.html", context)
 
@@ -75,17 +74,16 @@ def new_movie(request):
 
 def add_movie(request):
     if request.method == 'GET':
-        return redirect('/movies/new')
+        return redirect('/movie/new')
 
     errors = Movie.objects.validate(request.POST)
     if errors:
         for e in errors.values():
             messages.error(request, e)
-            return redirect('/movies/new')
+            return redirect('/movie/new')
 
     movie = Movie.objects.add(request.POST, request.FILES['poster'])
     return redirect('/dashboard')
-
 
 def show_movie(request, movie_id):
     if 'user_id' not in request.session:
@@ -105,7 +103,7 @@ def add_review(request):
     
     new_reivew = Review.objects.add(request.POST)
 
-    return redirect(f'movie/{request.POST["movie_id"]}')
+    return redirect(f'/movie/{request.POST["movie_id"]}')
 
 def add_comment(request):
     if request.method == "GET":
@@ -114,3 +112,42 @@ def add_comment(request):
     new_comment = Comment.objects.add(request.POST)
 
     return redirect(f'movie/{request.POST["movie_id"]}')
+
+def all_users(request):
+    context = {
+        'user': User.objects.get(id= request.session['user_id']),
+        "all_users": User.objects.exclude(id= request.session['user_id']),
+    }
+    return render(request, 'all_users.html', context)
+
+def show_profile(request, user_id):
+    if 'user_id' not in request.session:
+        return redirect('/')
+    
+    context = {
+        'user': User.objects.get(id= user_id),
+        'user_reviews': Review.objects.filter(user= User.objects.get(id= user_id)),
+        'session_user': User.objects.get(id= request.session['user_id']),
+    }
+
+    return render(request, 'show_profile.html', context)
+
+def edit_user(request):
+    if 'user_id' not in request.session:
+        return redirect('/')
+    
+    context = {
+        'user': User.objects.get(id= request.session('user_id')),
+    }
+
+    return render(request, 'edit_profile.html', context)
+
+def delete_user(request):
+    if 'user_id' not in request.session:
+        return redirect('/')
+    
+    user_delete = User.objects.get(id= request.session['user_id'])
+    user_delete.delete()
+    request.session.flush()
+    return redirect('/')
+    
