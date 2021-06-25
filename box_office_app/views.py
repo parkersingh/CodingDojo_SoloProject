@@ -111,7 +111,7 @@ def add_comment(request):
 
     new_comment = Comment.objects.add(request.POST)
 
-    return redirect(f'movie/{request.POST["movie_id"]}')
+    return redirect(f'/movie/{request.POST["movie_id"]}')
 
 def all_users(request):
     context = {
@@ -137,10 +137,18 @@ def edit_user(request):
         return redirect('/')
     
     context = {
-        'user': User.objects.get(id= request.session('user_id')),
+        'user': User.objects.get(id= request.session['user_id']),
     }
 
     return render(request, 'edit_profile.html', context)
+
+def update_user(request):
+    if request.method == 'GET':
+        return redirect('/dashboard')
+    
+    user_update = User.objects.update(request.POST)
+
+    return redirect(f'/user/{ request.POST["user_id"]}')
 
 def delete_user(request):
     if 'user_id' not in request.session:

@@ -49,6 +49,14 @@ class UserManager(models.Manager):
             else:
                 return False
         return False
+    
+    def update(self, postData):
+        user = User.objects.get(id= postData['user_id'])
+        user.name = postData['name']
+        user.username = postData['username']
+        user.email = postData['email']
+        user.save()
+        return user
 
 class MovieManager(models.Manager):
     def validate(self, postData):
@@ -130,6 +138,7 @@ class Comment(models.Model):
     comment_content = models.TextField()
     review = models.ForeignKey(Review, related_name='comments', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='user_comments',on_delete=models.CASCADE)
+    objects = CommentManager()
     created_at = models.DateTimeField(auto_now_add= True)
     updated_at = models.DateTimeField(auto_now= True)
 

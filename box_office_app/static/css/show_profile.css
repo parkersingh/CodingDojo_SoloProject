@@ -1,0 +1,13 @@
+.review {
+    border: 2px solid black;
+    width: 3yout00px;
+    padding: 5px;
+}
+
+img {
+    width: 200px;
+}
+
+ul {
+    list-style-type: none;
+}

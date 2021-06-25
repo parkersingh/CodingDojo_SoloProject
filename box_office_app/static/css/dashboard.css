@@ -1,0 +1,15 @@
+
+img {
+    width: 200px;
+    height: 450px;
+}
+
+#movies-row {
+    margin-bottom: 20px;
+}
+
+.review {
+    border: 2px solid black;
+    width: 30%;
+    padding: 5px;
+}
